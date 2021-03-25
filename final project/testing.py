@@ -116,14 +116,26 @@ def next_call_back(music):
     update_song_start_pos(0)
     play_call_back()
 
-def update_song_lenth(file):
+def update_song_lenth(file):#Sean
     audio = MP3(file)
     song_info_dict['length'] = audio.info.length #find and store lenght of file, in seconds
 
 
-def update_song_start_pos(position):
+def update_song_start_pos(position):#Sean
     song_info_dict['start_pos'] = position #must store song start position because pygame music uses relative position for MP3 Files.
 
+def current_position(): #Sean
+    realtivePosition = pygame.mixer.music.get_pos()/1000
+    absolutePosition = song_info_dict['start_pos'] + realtivePosition
+    return absolutePosition #return current position in seconds
+
+def seek_position(seconds):#Sean
+    if seconds > song_info_dict['length']: #if input is larger than length of song, play song from beginning
+        pygame.mixer.music.rewind()
+        pygame.mixer.music.play()
+    else:   
+        pygame.mixer.music.play(start = seconds) #else play song from desired starting position and update dictionary start position value
+        song_info_dict['start_pos'] = seconds
 
 
 
@@ -173,7 +185,7 @@ def main():
     next_btn = Button(root, text='next', command=lambda : next_call_back(music))
     next_btn.pack()
     list_box = Listbox()
-    root.mainloop()
+    #root.mainloop()
 
 
 if __name__ == '__main__':
