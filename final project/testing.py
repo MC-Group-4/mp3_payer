@@ -1,6 +1,7 @@
 import sqlite3
 from sqlite3 import Error
 from music import Music
+from mutagen.mp3 import MP3
 
 import pygame
 from tkinter import *
@@ -60,6 +61,7 @@ def update_song(conn, music):
 is_paused = False
 is_stopped = True
 count = 0
+song_info_dict = {}
 
 def play_call_back():
     global is_paused
@@ -93,8 +95,10 @@ def prev_call_back(music):
     is_stopped = True
     count -= 1
     stop_call_back()
-
-    pygame.mixer.music.load(f'music\\{music[count][3]}')
+    file = f'music\\{music[count][3]}'
+    pygame.mixer.music.load(file)
+    update_song_lenth(file)
+    update_song_start_pos(0)
     play_call_back()
 
 
@@ -106,8 +110,19 @@ def next_call_back(music):
     is_stopped = True
     count += 1
     stop_call_back()
-    pygame.mixer.music.load(f'music\\{music[count][3]}')
+    file = f'music\\{music[count][3]}'
+    pygame.mixer.music.load(file)
+    update_song_lenth(file)
+    update_song_start_pos(0)
     play_call_back()
+
+def update_song_lenth(file):
+    audio = MP3(file)
+    song_info_dict['length'] = audio.info.length #find and store lenght of file, in seconds
+
+
+def update_song_start_pos(position):
+    song_info_dict['start_pos'] = position #must store song start position because pygame music uses relative position for MP3 Files.
 
 
 
@@ -134,7 +149,10 @@ def main():
     # update_song(connection, ('Empire State Of Mind.wav', 2))
     music = get_all_music(connection)
     pygame.mixer.init()
-    pygame.mixer.music.load(f'music\\{music[0][3]}')
+    file = f'music\\{music[0][3]}'
+    update_song_lenth(file)
+    update_song_start_pos(0)
+    pygame.mixer.music.load(file)
 
     root = Tk()
     root.geometry('500x400')
