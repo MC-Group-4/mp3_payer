@@ -94,7 +94,7 @@ def prev_call_back(music):
     count -= 1
     stop_call_back()
 
-   # pygame.mixer.music.load(f'C:\\Users\\getna\\OneDrive\\Desktop\\advanced_python\\final project\\music\\{music[count][3]}')
+    pygame.mixer.music.load(f'music\\{music[count][3]}')
     play_call_back()
 
 
@@ -106,7 +106,7 @@ def next_call_back(music):
     is_stopped = True
     count += 1
     stop_call_back()
-   # pygame.mixer.music.load(f'C:\\Users\\getna\\OneDrive\\Desktop\\advanced_python\\final project\\music\\{music[count][3]}')
+    pygame.mixer.music.load(f'music\\{music[count][3]}')
     play_call_back()
 
 
@@ -134,7 +134,7 @@ def main():
     # update_song(connection, ('Empire State Of Mind.wav', 2))
     music = get_all_music(connection)
     pygame.mixer.init()
-   # pygame.mixer.music.load(f'C:\\Users\\getna\\OneDrive\\Desktop\\advanced_python\\final project\\music\\{music[0][1]}.wav')
+    pygame.mixer.music.load(f'music\\{music[0][3]}')
 
     root = Tk()
     root.geometry('500x400')
