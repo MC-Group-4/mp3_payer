@@ -2,6 +2,7 @@ import sqlite3
 from sqlite3 import Error
 from music import Music
 from mutagen.mp3 import MP3
+import datetime
 
 import pygame
 from tkinter import *
@@ -125,9 +126,18 @@ def update_song_start_pos(position):#Sean
     song_info_dict['start_pos'] = position #must store song start position because pygame music uses relative position for MP3 Files.
 
 def current_position(): #Sean
-    realtivePosition = pygame.mixer.music.get_pos()/1000
-    absolutePosition = song_info_dict['start_pos'] + realtivePosition
-    return absolutePosition #return current position in seconds
+    realtivePosition = pygame.mixer.music.get_pos()/1000 #get current relative song position from pygame, in seconds
+    absolutePosition = song_info_dict['start_pos'] + realtivePosition #find absolute position by adding relative positon to starting positon
+    position = datetime.timedelta(seconds=absolutePosition) #convert to h:mm:ss.ms
+    position_str = str(position).split(".")[0] #drop microseconds and format as string
+    return position_str  #return current position 
+
+
+def get_song_length(): #Sean
+    length = datetime.timedelta(seconds=song_info_dict['length']) #convert to h:mm:ss.ms
+    length_str = str(length).split(".")[0] #drop microseconds and format as string
+    return length_str  #return track length string
+    
 
 def seek_position(seconds):#Sean
     if seconds > song_info_dict['length']: #if input is larger than length of song, play song from beginning
@@ -184,6 +194,8 @@ def main():
     prev_btn.pack()
     next_btn = Button(root, text='next', command=lambda : next_call_back(music))
     next_btn.pack()
+    
+    
     list_box = Listbox()
     #root.mainloop()
 
