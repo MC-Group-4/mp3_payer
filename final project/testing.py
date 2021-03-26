@@ -4,7 +4,7 @@ from music import Music
 
 import pygame
 from tkinter import *
-
+import time 
 
 def create_connection(db_file):
     conn = None
@@ -60,6 +60,15 @@ def update_song(conn, music):
 is_paused = False
 is_stopped = True
 count = 0
+#for displaying time of song playing 
+def song_time():
+    '''
+    need to restart the time when new song starts
+    need to update the time without having to click play and stop
+    '''
+    current_song_time = pygame.mixer.music.get_pos()/1000
+    format_current_time = time.strftime("%M:%S", time.gmtime(current_song_time))
+    status_bar.config(text=format_current_time)
 
 def play_call_back():
     global is_paused
@@ -76,6 +85,9 @@ def play_call_back():
         pygame.mixer.music.pause()
         is_paused = True
         print('pausing')
+    
+    #calling from play so updates every time it is paused and played, need to fix 
+    status_bar.after(1000,song_time())
 
 
 def stop_call_back():
@@ -109,9 +121,11 @@ def next_call_back(music):
     pygame.mixer.music.load(f'music\\{music[count][3]}')
     play_call_back()
 
-
-
-
+def shuffle_songs():
+    '''
+    need to finish 
+    '''
+    print("Shuffle")
 
 def main():
     sql_create_music_table = """ CREATE TABLE IF NOT EXISTS music (
@@ -154,6 +168,19 @@ def main():
     prev_btn.pack()
     next_btn = Button(root, text='next', command=lambda : next_call_back(music))
     next_btn.pack()
+    #shuffle button 
+    shuffle_btn_image = PhotoImage(file = '/Users/mannat/PycharmProjects/Trial/shuffle.png')
+    shuffle_btn = Button(root, image = shuffle_btn_image, command = shuffle_songs, height = 25, width=40)
+    shuffle_btn.pack()
+    #label for displaying time of song 
+    global status_bar
+    status_bar = Label(root, text=" ", bd=5, relief= FLAT, anchor=W)
+    status_bar.pack(fill=X, side= BOTTOM, ipady=2)
+    
+    list_box = Listbox()
+    root.mainloop()
+
+    
     list_box = Listbox()
     root.mainloop()
 
