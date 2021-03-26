@@ -86,7 +86,7 @@ def play_call_back():
         is_paused = True
         print('pausing')
     
-    #calling from play so updates every time it is paused and played, need to fix 
+    #calling from play so updates the time of the song every time it is paused and played, need to fix 
     status_bar.after(1000,song_time())
 
 
