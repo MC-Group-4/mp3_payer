@@ -1,6 +1,8 @@
 import sqlite3
 from sqlite3 import Error
 from music import Music
+from mutagen.mp3 import MP3
+import datetime
 
 import pygame
 from tkinter import *
@@ -60,6 +62,8 @@ def update_song(conn, music):
 is_paused = False
 is_stopped = True
 count = 0
+song_info_dict = {}
+
 #for displaying time of song playing 
 def song_time():
     '''
@@ -105,8 +109,10 @@ def prev_call_back(music):
     is_stopped = True
     count -= 1
     stop_call_back()
-
-    pygame.mixer.music.load(f'music\\{music[count][3]}')
+    file = f'music\\{music[count][3]}'
+    pygame.mixer.music.load(file)
+    update_song_lenth(file)
+    update_song_start_pos(0)
     play_call_back()
 
 
@@ -118,14 +124,51 @@ def next_call_back(music):
     is_stopped = True
     count += 1
     stop_call_back()
-    pygame.mixer.music.load(f'music\\{music[count][3]}')
+    file = f'music\\{music[count][3]}'
+    pygame.mixer.music.load(file)
+    update_song_lenth(file)
+    update_song_start_pos(0)
     play_call_back()
+
+
+def update_song_lenth(file):#Sean
+    audio = MP3(file)
+    song_info_dict['length'] = audio.info.length #find and store lenght of file, in seconds
+
+
+def update_song_start_pos(position):#Sean
+    song_info_dict['start_pos'] = position #must store song start position because pygame music uses relative position for MP3 Files.
+
+def current_position(): #Sean
+    realtivePosition = pygame.mixer.music.get_pos()/1000 #get current relative song position from pygame, in seconds
+    absolutePosition = song_info_dict['start_pos'] + realtivePosition #find absolute position by adding relative positon to starting positon
+    position = datetime.timedelta(seconds=absolutePosition) #convert to h:mm:ss.ms
+    position_str = str(position).split(".")[0] #drop microseconds and format as string
+    return position_str  #return current position 
+
+
+def get_song_length(): #Sean
+    length = datetime.timedelta(seconds=song_info_dict['length']) #convert to h:mm:ss.ms
+    length_str = str(length).split(".")[0] #drop microseconds and format as string
+    return length_str  #return track length string
+    
+
+def seek_position(seconds):#Sean
+    if seconds > song_info_dict['length']: #if input is larger than length of song, play song from beginning
+        pygame.mixer.music.rewind()
+        pygame.mixer.music.play()
+    else:   
+        pygame.mixer.music.play(start = seconds) #else play song from desired starting position and update dictionary start position value
+        song_info_dict['start_pos'] = seconds
+
+
 
 def shuffle_songs():
     '''
     need to finish 
     '''
     print("Shuffle")
+
 
 def main():
     sql_create_music_table = """ CREATE TABLE IF NOT EXISTS music (
@@ -148,7 +191,10 @@ def main():
     # update_song(connection, ('Empire State Of Mind.wav', 2))
     music = get_all_music(connection)
     pygame.mixer.init()
-    pygame.mixer.music.load(f'music\\{music[0][3]}')
+    file = f'music\\{music[0][3]}'
+    update_song_lenth(file)
+    update_song_start_pos(0)
+    pygame.mixer.music.load(file)
 
     root = Tk()
     root.geometry('500x400')
@@ -168,6 +214,7 @@ def main():
     prev_btn.pack()
     next_btn = Button(root, text='next', command=lambda : next_call_back(music))
     next_btn.pack()
+
     #shuffle button 
     shuffle_btn_image = PhotoImage(file = '/Users/mannat/PycharmProjects/Trial/shuffle.png')
     shuffle_btn = Button(root, image = shuffle_btn_image, command = shuffle_songs, height = 25, width=40)
@@ -179,10 +226,7 @@ def main():
     
     list_box = Listbox()
     root.mainloop()
-
-    
-    list_box = Listbox()
-    root.mainloop()
+   
 
 
 if __name__ == '__main__':
