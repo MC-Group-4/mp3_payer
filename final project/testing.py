@@ -144,10 +144,10 @@ def current_position(): #Sean
     absolutePosition = song_info_dict['start_pos'] + realtivePosition #find absolute position by adding relative positon to starting positon
     position = datetime.timedelta(seconds=absolutePosition) #convert to h:mm:ss.ms
     position_str = str(position).split(".")[0] #drop microseconds and format as string
-    return position_str  #return current position 
+    return (position_str,absolutePosition)  #return tuple of (h:mm:ss, seconds)
 
 
-def get_song_length(): #Sean
+def skip_forward_10(): #Sean
     length = datetime.timedelta(seconds=song_info_dict['length']) #convert to h:mm:ss.ms
     length_str = str(length).split(".")[0] #drop microseconds and format as string
     return length_str  #return track length string
@@ -162,8 +162,7 @@ def seek_position(seconds):#Sean
         song_info_dict['start_pos'] = seconds
 
 def skip_forward_10():
-    #need to finish
-    current = current_position()
+    current = current_position()[1]
     new = current + 10
     if new < song_info_dict['length']:
         seek_position(new)
@@ -171,7 +170,14 @@ def skip_forward_10():
     print("Forward 10 Seconds")
 
 def skip_backward_10():
-    #need to finish
+    current = current_position()[1]
+    new = current - 10
+    if new > 0:
+        seek_position(new)
+    else:
+        pygame.mixer.music.rewind()
+        pygame.mixer.music.play()
+        
     print("Backward 10 Seconds")
 
 
