@@ -234,6 +234,14 @@ def main():
     next_btn = Button(root, text='next', command=lambda : next_call_back(music))
     next_btn.pack()
 
+    #Seek Buttons
+    Forward_Logo = PhotoImage(file='Assets/FF.png')
+    Backward_Logo = PhotoImage(file='Assets/FR.png')
+    SeekForward_btn = Button(root, image = Forward_Logo, command=skip_forward_10)
+    SeekForward_btn.pack()
+    SeekBackward_btn = Button(root, image = Backward_Logo, command=skip_backward_10)
+    SeekBackward_btn.pack()
+
     #shuffle button 
     shuffle_btn_image = PhotoImage(file = '/Users/mannat/PycharmProjects/Trial/shuffle.png')
     shuffle_btn = Button(root, image = shuffle_btn_image, command = shuffle_songs, height = 25, width=40)
