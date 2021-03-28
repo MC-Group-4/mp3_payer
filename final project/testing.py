@@ -144,8 +144,11 @@ def current_position(): #Sean
     absolutePosition = song_info_dict['start_pos'] + realtivePosition #find absolute position by adding relative positon to starting positon
     position = datetime.timedelta(seconds=absolutePosition) #convert to h:mm:ss.ms
     position_str = str(position).split(".")[0] #drop microseconds and format as string
-    return (position_str,absolutePosition)  #return tuple of (h:mm:ss, seconds)
-
+    if absolutePosition < 1:
+        return ('0:00:00',0)
+    else:
+        return (position_str,absolutePosition)  #return tuple of (h:mm:ss, seconds)
+    
 
 def skip_forward_10(): #Sean
     length = datetime.timedelta(seconds=song_info_dict['length']) #convert to h:mm:ss.ms
@@ -177,8 +180,12 @@ def skip_backward_10():
     else:
         pygame.mixer.music.rewind()
         pygame.mixer.music.play()
+        song_info_dict['start_pos'] = 0
+        
         
     print("Backward 10 Seconds")
+
+
 
 
 
@@ -187,9 +194,19 @@ def shuffle_songs():
     need to finish 
     '''
     print("Shuffle")
+    
+def update_position():
+    """ update the label every 1 second """
+    global position_label
+    position_label.configure(text=current_position()[0])
+
+    # schedule another timer
+    position_label.after(10, update_position) #makes a loop
+
 
 
 def main():
+        
     sql_create_music_table = """ CREATE TABLE IF NOT EXISTS music (
                                         id integer PRIMARY KEY,
                                         title text NOT NULL,
@@ -242,6 +259,13 @@ def main():
     SeekBackward_btn = Button(root, image = Backward_Logo, command=skip_backward_10)
     SeekBackward_btn.pack()
 
+    #Show Current Positon
+    global position_label
+    position_label = Label(text='0:00:00')
+    position_label.pack(expand=True)
+    position_label.after(10, update_position) #calls function after 10 ms
+
+
     #shuffle button 
     shuffle_btn_image = PhotoImage(file = '/Users/mannat/PycharmProjects/Trial/shuffle.png')
     shuffle_btn = Button(root, image = shuffle_btn_image, command = shuffle_songs, height = 25, width=40)
@@ -252,6 +276,8 @@ def main():
     status_bar.pack(fill=X, side= BOTTOM, ipady=2)
     
     list_box = Listbox()
+    
+
     root.mainloop()
    
 
