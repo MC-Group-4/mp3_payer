@@ -161,6 +161,19 @@ def seek_position(seconds):#Sean
         pygame.mixer.music.play(start = seconds) #else play song from desired starting position and update dictionary start position value
         song_info_dict['start_pos'] = seconds
 
+def skip_forward_10():
+    #need to finish
+    current = current_position()
+    new = current + 10
+    if new < song_info_dict['length']:
+        seek_position(new)
+    
+    print("Forward 10 Seconds")
+
+def skip_backward_10():
+    #need to finish
+    print("Backward 10 Seconds")
+
 
 
 def shuffle_songs():
