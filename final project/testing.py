@@ -143,8 +143,18 @@ def current_position(): #Sean
     realtivePosition = pygame.mixer.music.get_pos()/1000 #get current relative song position from pygame, in seconds
     absolutePosition = song_info_dict['start_pos'] + realtivePosition #find absolute position by adding relative positon to starting positon
     position_str = convert_seconds(absolutePosition)
+    length = convert_seconds(song_info_dict['length']) #length of song in h:mm:ss format
+
+    
+    #check if song has starded, if not return tupple (0:00, 0)
     if absolutePosition < 1:
         return ('0:00:00',0)
+    
+    #if song is not at 0, but relative position is < 1, then song has ended. Return tupple(song length, length in seconds)
+    elif realtivePosition < 0:
+        return (length,song_info_dict['length'])
+
+    #else return current position tupple
     else:
         return (position_str,absolutePosition)  #return tuple of (h:mm:ss, seconds)
     
@@ -190,14 +200,16 @@ def shuffle_songs():
     '''
     print("Shuffle")
     
-def update_position():
+def update_position(): #update label showing current position and song lenth
     """ update the label every 1 second """
+    
     global position_label
     song_length = convert_seconds(song_info_dict['length']) 
     position_label.configure(text=current_position()[0]+' / '+song_length)
+    
 
     # schedule another timer
-    position_label.after(10, update_position) #makes a loop
+    position_label.after(1000, update_position) #makes a loop
 
 def convert_seconds(seconds):
     #takes in a seconds value and returns a string in the form of h:mm:ss
@@ -265,7 +277,7 @@ def main():
     song_length = convert_seconds(song_info_dict['length']) 
     position_label = Label(text=f'0:00:00 / {song_length}')
     position_label.pack(expand=True)
-    position_label.after(10, update_position) #calls function after 10 ms
+    position_label.after(1000, update_position) #calls function after 1s
 
 
     #shuffle button 
