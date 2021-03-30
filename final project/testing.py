@@ -134,8 +134,9 @@ def next_call_back(music):
 def update_song_lenth(file):#Sean
     audio = MP3(file)
     song_info_dict['length'] = audio.info.length #find and store lenght of file, in seconds
-
-
+    song_info_dict['fileName'] = file.split("\\")[1] #store file name of song currently loaded / playing
+    
+    
 def update_song_start_pos(position):#Sean
     song_info_dict['start_pos'] = position #must store song start position because pygame music uses relative position for MP3 Files.
 
@@ -200,16 +201,22 @@ def shuffle_songs():
     '''
     print("Shuffle")
     
-def update_position(): #update label showing current position and song lenth
-    """ update the label every 1 second """
+def update_position(): #update label showing file name, current position and song lenth
+    """ update the label every 1/10 second """
     
-    global position_label
+    global position_label #update position label
     song_length = convert_seconds(song_info_dict['length']) 
     position_label.configure(text=current_position()[0]+' / '+song_length)
+
+    global song_label #update song Label
     
+    try:
+        song_label.configure(text = 'Now Playing: '+song_info_dict['fileName'])
+    except: #if no song is loaded, display ''
+        song_label.configure(text = '')
 
     # schedule another timer
-    position_label.after(1000, update_position) #makes a loop
+    position_label.after(100, update_position) #makes a loop
 
 def convert_seconds(seconds):
     #takes in a seconds value and returns a string in the form of h:mm:ss
@@ -277,7 +284,13 @@ def main():
     song_length = convert_seconds(song_info_dict['length']) 
     position_label = Label(text=f'0:00:00 / {song_length}')
     position_label.pack(expand=True)
-    position_label.after(1000, update_position) #calls function after 1s
+    position_label.after(100, update_position) #calls function after 1s
+
+    #Now Playing Label
+    global song_label
+    song_label = Label(text = '')
+    song_label.pack()
+    
 
 
     #shuffle button 
