@@ -142,18 +142,13 @@ def update_song_start_pos(position):#Sean
 def current_position(): #Sean
     realtivePosition = pygame.mixer.music.get_pos()/1000 #get current relative song position from pygame, in seconds
     absolutePosition = song_info_dict['start_pos'] + realtivePosition #find absolute position by adding relative positon to starting positon
-    position = datetime.timedelta(seconds=absolutePosition) #convert to h:mm:ss.ms
-    position_str = str(position).split(".")[0] #drop microseconds and format as string
+    position_str = convert_seconds(absolutePosition)
     if absolutePosition < 1:
         return ('0:00:00',0)
     else:
         return (position_str,absolutePosition)  #return tuple of (h:mm:ss, seconds)
     
 
-def skip_forward_10(): #Sean
-    length = datetime.timedelta(seconds=song_info_dict['length']) #convert to h:mm:ss.ms
-    length_str = str(length).split(".")[0] #drop microseconds and format as string
-    return length_str  #return track length string
     
 
 def seek_position(seconds):#Sean
@@ -198,11 +193,17 @@ def shuffle_songs():
 def update_position():
     """ update the label every 1 second """
     global position_label
-    position_label.configure(text=current_position()[0])
+    song_length = convert_seconds(song_info_dict['length']) 
+    position_label.configure(text=current_position()[0]+' / '+song_length)
 
     # schedule another timer
     position_label.after(10, update_position) #makes a loop
 
+def convert_seconds(seconds):
+    #takes in a seconds value and returns a string in the form of h:mm:ss
+    position = datetime.timedelta(seconds=seconds) #convert to h:mm:ss.ms
+    position_str = str(position).split(".")[0] #drop microseconds and format as string
+    return position_str
 
 
 def main():
@@ -261,7 +262,8 @@ def main():
 
     #Show Current Positon
     global position_label
-    position_label = Label(text='0:00:00')
+    song_length = convert_seconds(song_info_dict['length']) 
+    position_label = Label(text=f'0:00:00 / {song_length}')
     position_label.pack(expand=True)
     position_label.after(10, update_position) #calls function after 10 ms
 
