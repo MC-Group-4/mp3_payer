@@ -294,8 +294,9 @@ def main():
 
 
     #shuffle button 
-    shuffle_btn_image = PhotoImage(file = '/Users/mannat/PycharmProjects/Trial/shuffle.png')
-    shuffle_btn = Button(root, image = shuffle_btn_image, command = shuffle_songs, height = 25, width=40)
+    #shuffle_btn_image = PhotoImage(file = '/Users/mannat/PycharmProjects/Trial/shuffle.png')
+    #shuffle_btn = Button(root, image = shuffle_btn_image, command = shuffle_songs, height = 25, width=40)
+    shuffle_btn = Button(root, text = "shuffle", command = shuffle_songs)
     shuffle_btn.pack()
     #label for displaying time of song 
     global status_bar
