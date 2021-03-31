@@ -1,4 +1,3 @@
-from functions import *
 from tkinter import *
 import pygame
 from tkinter import filedialog
