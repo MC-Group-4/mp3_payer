@@ -134,26 +134,32 @@ def next_call_back(music):
 def update_song_lenth(file):#Sean
     audio = MP3(file)
     song_info_dict['length'] = audio.info.length #find and store lenght of file, in seconds
-
-
+    song_info_dict['fileName'] = file.split("\\")[1] #store file name of song currently loaded / playing
+    
+    
 def update_song_start_pos(position):#Sean
     song_info_dict['start_pos'] = position #must store song start position because pygame music uses relative position for MP3 Files.
 
 def current_position(): #Sean
     realtivePosition = pygame.mixer.music.get_pos()/1000 #get current relative song position from pygame, in seconds
     absolutePosition = song_info_dict['start_pos'] + realtivePosition #find absolute position by adding relative positon to starting positon
-    position = datetime.timedelta(seconds=absolutePosition) #convert to h:mm:ss.ms
-    position_str = str(position).split(".")[0] #drop microseconds and format as string
+    position_str = convert_seconds(absolutePosition)
+    length = convert_seconds(song_info_dict['length']) #length of song in h:mm:ss format
+
+    
+    #check if song has starded, if not return tupple (0:00, 0)
     if absolutePosition < 1:
         return ('0:00:00',0)
+    
+    #if song is not at 0, but relative position is < 1, then song has ended. Return tupple(song length, length in seconds)
+    elif realtivePosition < 0:
+        return (length,song_info_dict['length'])
+
+    #else return current position tupple
     else:
         return (position_str,absolutePosition)  #return tuple of (h:mm:ss, seconds)
     
 
-def skip_forward_10(): #Sean
-    length = datetime.timedelta(seconds=song_info_dict['length']) #convert to h:mm:ss.ms
-    length_str = str(length).split(".")[0] #drop microseconds and format as string
-    return length_str  #return track length string
     
 
 def seek_position(seconds):#Sean
@@ -195,14 +201,28 @@ def shuffle_songs():
     '''
     print("Shuffle")
     
-def update_position():
-    """ update the label every 1 second """
-    global position_label
-    position_label.configure(text=current_position()[0])
+def update_position(): #update label showing file name, current position and song lenth
+    """ update the label every 1/10 second """
+    
+    global position_label #update position label
+    song_length = convert_seconds(song_info_dict['length']) 
+    position_label.configure(text=current_position()[0]+' / '+song_length)
+
+    global song_label #update song Label
+    
+    try:
+        song_label.configure(text = 'Now Playing: '+song_info_dict['fileName'])
+    except: #if no song is loaded, display ''
+        song_label.configure(text = '')
 
     # schedule another timer
-    position_label.after(10, update_position) #makes a loop
+    position_label.after(100, update_position) #makes a loop
 
+def convert_seconds(seconds):
+    #takes in a seconds value and returns a string in the form of h:mm:ss
+    position = datetime.timedelta(seconds=seconds) #convert to h:mm:ss.ms
+    position_str = str(position).split(".")[0] #drop microseconds and format as string
+    return position_str
 
 
 def main():
@@ -261,9 +281,16 @@ def main():
 
     #Show Current Positon
     global position_label
-    position_label = Label(text='0:00:00')
+    song_length = convert_seconds(song_info_dict['length']) 
+    position_label = Label(text=f'0:00:00 / {song_length}')
     position_label.pack(expand=True)
-    position_label.after(10, update_position) #calls function after 10 ms
+    position_label.after(100, update_position) #calls function after 1s
+
+    #Now Playing Label
+    global song_label
+    song_label = Label(text = '')
+    song_label.pack()
+    
 
 
     #shuffle button 
