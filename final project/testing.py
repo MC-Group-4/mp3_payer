@@ -2,6 +2,7 @@ import sqlite3
 from sqlite3 import Error
 from music import Music
 from mutagen.mp3 import MP3
+from mutagen.id3 import ID3
 import datetime
 
 import pygame
@@ -111,7 +112,7 @@ def prev_call_back(music):
     stop_call_back()
     file = f'music\\{music[count][3]}'
     pygame.mixer.music.load(file)
-    update_song_lenth(file)
+    update_song_info(file)
     update_song_start_pos(0)
     play_call_back()
 
@@ -126,15 +127,19 @@ def next_call_back(music):
     stop_call_back()
     file = f'music\\{music[count][3]}'
     pygame.mixer.music.load(file)
-    update_song_lenth(file)
+    update_song_info(file)
     update_song_start_pos(0)
     play_call_back()
 
 
-def update_song_lenth(file):#Sean
-    audio = MP3(file)
+def update_song_info(file):#Sean
+    audio = MP3(file) #info about MP3 File
+    tags = ID3(file)
     song_info_dict['length'] = audio.info.length #find and store lenght of file, in seconds
     song_info_dict['fileName'] = file.split("\\")[1] #store file name of song currently loaded / playing
+    song_info_dict['Artist'] = tags['TPE1'].text[0] #store Artist from MP3 Metadata Tag
+    song_info_dict['Title'] = tags['TIT2'].text[0] #store Song Title from MP3 Metadata Tag
+
     
     
 def update_song_start_pos(position):#Sean
@@ -248,7 +253,7 @@ def main():
     music = get_all_music(connection)
     pygame.mixer.init()
     file = f'music\\{music[0][3]}'
-    update_song_lenth(file)
+    update_song_info(file)
     update_song_start_pos(0)
     pygame.mixer.music.load(file)
 
