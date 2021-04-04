@@ -7,6 +7,7 @@ import datetime
 
 import pygame
 from tkinter import *
+import tkinter.ttk as ttk
 import time 
 
 def create_connection(db_file):
@@ -112,8 +113,13 @@ def prev_call_back(music):
     stop_call_back()
     file = f'music\\{music[count][3]}'
     pygame.mixer.music.load(file)
+
+    #update song info dict
     update_song_info(file)
-    update_song_start_pos(0)
+    update_song_start_pos(0)#set start position as 0
+
+    #reset slider position to 0 and set slider max equal to length of song
+    position_slider.configure(value = 0, to=song_info_dict['length'] )
     play_call_back()
 
 
@@ -127,19 +133,25 @@ def next_call_back(music):
     stop_call_back()
     file = f'music\\{music[count][3]}'
     pygame.mixer.music.load(file)
+
+    #update song info dict
     update_song_info(file)
-    update_song_start_pos(0)
+    update_song_start_pos(0) #set start position as 0
+
+    #reset slider position to 0 and set slider max equal to length of song
+    position_slider.configure(value = 0, to=song_info_dict['length'] )
+    
     play_call_back()
 
 
-def update_song_info(file):#Sean
+def update_song_info(file):
+    print(file)#file):#Sean
     audio = MP3(file) #info about MP3 File
     tags = ID3(file)
     song_info_dict['length'] = audio.info.length #find and store lenght of file, in seconds
-    song_info_dict['fileName'] = file.split("\\")[1] #store file name of song currently loaded / playing
     song_info_dict['Artist'] = tags['TPE1'].text[0] #store Artist from MP3 Metadata Tag
     song_info_dict['Title'] = tags['TIT2'].text[0] #store Song Title from MP3 Metadata Tag
-
+    
     
     
 def update_song_start_pos(position):#Sean
@@ -207,7 +219,7 @@ def shuffle_songs():
     print("Shuffle")
     
 def update_position(): #update label showing file name, current position and song lenth
-    """ update the label every 1/10 second """
+    """ update the label every second """
     
     global position_label #update position label
     song_length = convert_seconds(song_info_dict['length']) 
@@ -220,6 +232,10 @@ def update_position(): #update label showing file name, current position and son
     except: #if no song is loaded, display ''
         song_label.configure(text = '')
 
+    #update Slider Position
+    slider_output.configure(text = int(position_slider.get())) #fake label
+    position_slider.configure(value = current_position()[1]+1)
+
     # schedule another timer
     position_label.after(100, update_position) #makes a loop
 
@@ -228,6 +244,11 @@ def convert_seconds(seconds):
     position = datetime.timedelta(seconds=seconds) #convert to h:mm:ss.ms
     position_str = str(position).split(".")[0] #drop microseconds and format as string
     return position_str
+
+def slider_function(value):
+    seconds = eval(value)
+    position_slider.configure(value = seconds)
+    seek_position(seconds)
 
 
 def main():
@@ -253,12 +274,14 @@ def main():
     music = get_all_music(connection)
     pygame.mixer.init()
     file = f'music\\{music[0][3]}'
-    update_song_info(file)
+    #update_song_info(file)
     update_song_start_pos(0)
     pygame.mixer.music.load(file)
+    audio = MP3(file) #info about MP3 File
+    song_info_dict['length'] = audio.info.length #find and store lenght of file, in seconds, store in song_info_dict dictionary
 
     root = Tk()
-    root.geometry('500x400')
+    root.geometry('500x500')
 
     music_list = Listbox(root, width= 120)
     music_list.pack()
@@ -289,13 +312,22 @@ def main():
     song_length = convert_seconds(song_info_dict['length']) 
     position_label = Label(text=f'0:00:00 / {song_length}')
     position_label.pack(expand=True)
-    position_label.after(100, update_position) #calls function after 1s
+    position_label.after(100, update_position) #calls function after 1/10s
 
     #Now Playing Label
     global song_label
     song_label = Label(text = '')
     song_label.pack()
-    
+
+
+    #Position Slider
+    global position_slider
+    position_slider = ttk.Scale(root, from_=0, to=song_info_dict['length'],value=0, length = 400, command =slider_function)
+    position_slider.pack(pady = 20)
+
+    global slider_output
+    slider_output = Label(root,text = int(position_slider.get()))
+    slider_output.pack()
 
 
     #shuffle button 
@@ -307,6 +339,9 @@ def main():
     global status_bar
     status_bar = Label(root, text=" ", bd=5, relief= FLAT, anchor=W)
     status_bar.pack(fill=X, side= BOTTOM, ipady=2)
+
+   
+    
     
     list_box = Listbox()
     
