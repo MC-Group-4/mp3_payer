@@ -8,7 +8,17 @@ import datetime
 import pygame
 from tkinter import *
 import tkinter.ttk as ttk
-import time 
+import time
+
+#Global Variables
+
+is_paused = False
+is_stopped = True
+count = 0
+song_info_dict = {}
+slider_mouse_clicked = False
+
+
 
 def create_connection(db_file):
     conn = None
@@ -61,10 +71,7 @@ def update_song(conn, music):
     conn.commit()
 
 
-is_paused = False
-is_stopped = True
-count = 0
-song_info_dict = {}
+
 
 #for displaying time of song playing 
 def song_time():
@@ -232,9 +239,9 @@ def update_position(): #update label showing file name, current position and son
     except: #if no song is loaded, display ''
         song_label.configure(text = '')
 
-    #update Slider Position
-    slider_output.configure(text = int(position_slider.get())) #fake label
-    position_slider.configure(value = current_position()[1]+1)
+    #update slider position, ONLY IF MOUSE IS NOT CLICKING THE SLIDER!
+    if not slider_mouse_clicked:
+        position_slider.configure(value = current_position()[1])
 
     # schedule another timer
     position_label.after(100, update_position) #makes a loop
@@ -245,9 +252,19 @@ def convert_seconds(seconds):
     position_str = str(position).split(".")[0] #drop microseconds and format as string
     return position_str
 
-def slider_function(value):
-    seconds = eval(value)
+def slider_clicked(event):
+    global slider_mouse_clicked
+    slider_mouse_clicked = True
+
+def slider_released(event):
+    global slider_mouse_clicked
+    slider_mouse_clicked = False
+
+    #once mouse button is released, set slider to positon where the mouse was released
+    seconds = position_slider.get()
     position_slider.configure(value = seconds)
+
+    #then move song to the desired position
     seek_position(seconds)
 
 
@@ -322,12 +339,12 @@ def main():
 
     #Position Slider
     global position_slider
-    position_slider = ttk.Scale(root, from_=0, to=song_info_dict['length'],value=0, length = 400, command =slider_function)
+    position_slider = ttk.Scale(root, from_=0, to=song_info_dict['length'],value=0, length = 400)
     position_slider.pack(pady = 20)
 
-    global slider_output
-    slider_output = Label(root,text = int(position_slider.get()))
-    slider_output.pack()
+    #bind mouse click and release events (only when clicking slider bar) to functions
+    position_slider.bind('<Button-1>', slider_clicked)
+    position_slider.bind('<ButtonRelease-1>', slider_released)
 
 
     #shuffle button 
