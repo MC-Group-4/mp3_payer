@@ -2,11 +2,23 @@ import sqlite3
 from sqlite3 import Error
 from music import Music
 from mutagen.mp3 import MP3
+from mutagen.id3 import ID3
 import datetime
 
 import pygame
 from tkinter import *
-import time 
+import tkinter.ttk as ttk
+import time
+
+#Global Variables
+
+is_paused = False
+is_stopped = True
+count = 0
+song_info_dict = {}
+slider_mouse_clicked = False
+
+
 
 def create_connection(db_file):
     conn = None
@@ -59,10 +71,7 @@ def update_song(conn, music):
     conn.commit()
 
 
-is_paused = False
-is_stopped = True
-count = 0
-song_info_dict = {}
+
 
 #for displaying time of song playing 
 def song_time():
@@ -111,8 +120,13 @@ def prev_call_back(music):
     stop_call_back()
     file = f'music\\{music[count][3]}'
     pygame.mixer.music.load(file)
-    update_song_lenth(file)
-    update_song_start_pos(0)
+
+    #update song info dict
+    update_song_info(file)
+    update_song_start_pos(0)#set start position as 0
+
+    #reset slider position to 0 and set slider max equal to length of song
+    position_slider.configure(value = 0, to=song_info_dict['length'] )
     play_call_back()
 
 
@@ -126,15 +140,25 @@ def next_call_back(music):
     stop_call_back()
     file = f'music\\{music[count][3]}'
     pygame.mixer.music.load(file)
-    update_song_lenth(file)
-    update_song_start_pos(0)
+
+    #update song info dict
+    update_song_info(file)
+    update_song_start_pos(0) #set start position as 0
+
+    #reset slider position to 0 and set slider max equal to length of song
+    position_slider.configure(value = 0, to=song_info_dict['length'] )
+    
     play_call_back()
 
 
-def update_song_lenth(file):#Sean
-    audio = MP3(file)
+def update_song_info(file):
+    print(file)#file):#Sean
+    audio = MP3(file) #info about MP3 File
+    tags = ID3(file)
     song_info_dict['length'] = audio.info.length #find and store lenght of file, in seconds
-    song_info_dict['fileName'] = file.split("\\")[1] #store file name of song currently loaded / playing
+    song_info_dict['Artist'] = tags['TPE1'].text[0] #store Artist from MP3 Metadata Tag
+    song_info_dict['Title'] = tags['TIT2'].text[0] #store Song Title from MP3 Metadata Tag
+    
     
     
 def update_song_start_pos(position):#Sean
@@ -202,7 +226,7 @@ def shuffle_songs():
     print("Shuffle")
     
 def update_position(): #update label showing file name, current position and song lenth
-    """ update the label every 1/10 second """
+    """ update the label every second """
     
     global position_label #update position label
     song_length = convert_seconds(song_info_dict['length']) 
@@ -215,6 +239,10 @@ def update_position(): #update label showing file name, current position and son
     except: #if no song is loaded, display ''
         song_label.configure(text = '')
 
+    #update slider position, ONLY IF MOUSE IS NOT CLICKING THE SLIDER!
+    if not slider_mouse_clicked:
+        position_slider.configure(value = current_position()[1])
+
     # schedule another timer
     position_label.after(100, update_position) #makes a loop
 
@@ -223,6 +251,21 @@ def convert_seconds(seconds):
     position = datetime.timedelta(seconds=seconds) #convert to h:mm:ss.ms
     position_str = str(position).split(".")[0] #drop microseconds and format as string
     return position_str
+
+def slider_clicked(event):
+    global slider_mouse_clicked
+    slider_mouse_clicked = True
+
+def slider_released(event):
+    global slider_mouse_clicked
+    slider_mouse_clicked = False
+
+    #once mouse button is released, set slider to positon where the mouse was released
+    seconds = position_slider.get()
+    position_slider.configure(value = seconds)
+
+    #then move song to the desired position
+    seek_position(seconds)
 
 
 def main():
@@ -248,12 +291,14 @@ def main():
     music = get_all_music(connection)
     pygame.mixer.init()
     file = f'music\\{music[0][3]}'
-    update_song_lenth(file)
+    #update_song_info(file)
     update_song_start_pos(0)
     pygame.mixer.music.load(file)
+    audio = MP3(file) #info about MP3 File
+    song_info_dict['length'] = audio.info.length #find and store lenght of file, in seconds, store in song_info_dict dictionary
 
     root = Tk()
-    root.geometry('500x400')
+    root.geometry('500x500')
 
     music_list = Listbox(root, width= 120)
     music_list.pack()
@@ -284,23 +329,36 @@ def main():
     song_length = convert_seconds(song_info_dict['length']) 
     position_label = Label(text=f'0:00:00 / {song_length}')
     position_label.pack(expand=True)
-    position_label.after(100, update_position) #calls function after 1s
+    position_label.after(100, update_position) #calls function after 1/10s
 
     #Now Playing Label
     global song_label
     song_label = Label(text = '')
     song_label.pack()
-    
+
+
+    #Position Slider
+    global position_slider
+    position_slider = ttk.Scale(root, from_=0, to=song_info_dict['length'],value=0, length = 400)
+    position_slider.pack(pady = 20)
+
+    #bind mouse click and release events (only when clicking slider bar) to functions
+    position_slider.bind('<Button-1>', slider_clicked)
+    position_slider.bind('<ButtonRelease-1>', slider_released)
 
 
     #shuffle button 
-    shuffle_btn_image = PhotoImage(file = '/Users/mannat/PycharmProjects/Trial/shuffle.png')
-    shuffle_btn = Button(root, image = shuffle_btn_image, command = shuffle_songs, height = 25, width=40)
+    #shuffle_btn_image = PhotoImage(file = '/Users/mannat/PycharmProjects/Trial/shuffle.png')
+    #shuffle_btn = Button(root, image = shuffle_btn_image, command = shuffle_songs, height = 25, width=40)
+    shuffle_btn = Button(root, text = "shuffle", command = shuffle_songs)
     shuffle_btn.pack()
     #label for displaying time of song 
     global status_bar
     status_bar = Label(root, text=" ", bd=5, relief= FLAT, anchor=W)
     status_bar.pack(fill=X, side= BOTTOM, ipady=2)
+
+   
+    
     
     list_box = Listbox()
     
