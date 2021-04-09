@@ -4,6 +4,8 @@ from music import Music
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3
 import datetime
+import string 
+import random
 
 import pygame
 from tkinter import *
@@ -116,7 +118,10 @@ def prev_call_back(music):
     global is_stopped
     is_paused = False
     is_stopped = True
-    count -= 1
+    if count > 0:
+        count -= 1
+    else:
+        count = 3
     stop_call_back()
     file = f'music\\{music[count][3]}'
     pygame.mixer.music.load(file)
@@ -136,7 +141,10 @@ def next_call_back(music):
     global is_stopped
     is_paused = False
     is_stopped = True
-    count += 1
+    if count < 3:
+        count += 1
+    else:
+        count = 0 
     stop_call_back()
     file = f'music\\{music[count][3]}'
     pygame.mixer.music.load(file)
@@ -219,11 +227,14 @@ def skip_backward_10():
 
 
 
-def shuffle_songs():
-    '''
-    need to finish 
-    '''
+def shuffle_songs(conn, music):
+    random.shuffle(music)
     print("Shuffle")
+    
+def volume(x):
+    pygame.mixer.music.set_volume(volumeSlider.get())
+    current_volume = pygame.mixer.music.get_volume()
+    
     
 def update_position(): #update label showing file name, current position and song lenth
     """ update the label every second """
@@ -324,6 +335,13 @@ def main():
     SeekBackward_btn = Button(root, image = Backward_Logo, command=skip_backward_10)
     SeekBackward_btn.pack()
 
+    # Volume button 
+    global volumeSlider
+    volumeLable = Label(root, text = 'Volume')
+    volumeLable.pack()
+    volumeSlider = Scale(root, from_=0.0, to = 1.0, resolution = 0.1, length= 400, orient=HORIZONTAL, command = volume )
+    volumeSlider.pack()
+    
     #Show Current Positon
     global position_label
     song_length = convert_seconds(song_info_dict['length']) 
@@ -350,7 +368,7 @@ def main():
     #shuffle button 
     #shuffle_btn_image = PhotoImage(file = '/Users/mannat/PycharmProjects/Trial/shuffle.png')
     #shuffle_btn = Button(root, image = shuffle_btn_image, command = shuffle_songs, height = 25, width=40)
-    shuffle_btn = Button(root, text = "shuffle", command = shuffle_songs)
+    shuffle_btn = Button(root, text = "shuffle", lambda: command = shuffle_songs(connection, music))
     shuffle_btn.pack()
     #label for displaying time of song 
     global status_bar
