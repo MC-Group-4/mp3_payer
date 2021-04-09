@@ -166,6 +166,8 @@ def update_song_info(file):
     song_info_dict['length'] = audio.info.length #find and store lenght of file, in seconds
     song_info_dict['Artist'] = tags['TPE1'].text[0] #store Artist from MP3 Metadata Tag
     song_info_dict['Title'] = tags['TIT2'].text[0] #store Song Title from MP3 Metadata Tag
+    print(song_info_dict['Title'])
+
     
     
     
@@ -246,9 +248,9 @@ def update_position(): #update label showing file name, current position and son
     global song_label #update song Label
     
     try:
-        song_label.configure(text = 'Now Playing: '+song_info_dict['fileName'])
+        song_label.configure(text = 'Now Playing: '+song_info_dict['Title'])
     except: #if no song is loaded, display ''
-        song_label.configure(text = '')
+        song_label.configure(text = 'None')
 
     #update slider position, ONLY IF MOUSE IS NOT CLICKING THE SLIDER!
     if not slider_mouse_clicked:
@@ -302,7 +304,7 @@ def main():
     music = get_all_music(connection)
     pygame.mixer.init()
     file = f'music\\{music[0][3]}'
-    #update_song_info(file)
+    update_song_info(file)
     update_song_start_pos(0)
     pygame.mixer.music.load(file)
     audio = MP3(file) #info about MP3 File
@@ -351,7 +353,7 @@ def main():
 
     #Now Playing Label
     global song_label
-    song_label = Label(text = '')
+    song_label = ttk.Label(root,text = song_info_dict['Title'])
     song_label.pack()
 
 
@@ -368,14 +370,14 @@ def main():
     #shuffle button 
     #shuffle_btn_image = PhotoImage(file = '/Users/mannat/PycharmProjects/Trial/shuffle.png')
     #shuffle_btn = Button(root, image = shuffle_btn_image, command = shuffle_songs, height = 25, width=40)
-    shuffle_btn = Button(root, text = "shuffle", lambda: command = shuffle_songs(connection, music))
+    shuffle_btn = Button(root, text = "shuffle",  command = lambda: shuffle_songs(connection, music))
     shuffle_btn.pack()
     #label for displaying time of song 
     global status_bar
     status_bar = Label(root, text=" ", bd=5, relief= FLAT, anchor=W)
     status_bar.pack(fill=X, side= BOTTOM, ipady=2)
 
-   
+    
     
     
     list_box = Listbox()
