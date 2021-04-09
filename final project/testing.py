@@ -370,7 +370,7 @@ def main():
     #shuffle button 
     #shuffle_btn_image = PhotoImage(file = '/Users/mannat/PycharmProjects/Trial/shuffle.png')
     #shuffle_btn = Button(root, image = shuffle_btn_image, command = shuffle_songs, height = 25, width=40)
-    shuffle_btn = Button(root, text = "shuffle", lambda: command = shuffle_songs(connection, music))
+    shuffle_btn = Button(root, text = "shuffle",  command = lambda: shuffle_songs(connection, music))
     shuffle_btn.pack()
     #label for displaying time of song 
     global status_bar
