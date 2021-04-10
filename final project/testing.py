@@ -6,6 +6,7 @@ from mutagen.id3 import ID3
 import datetime
 import string 
 import random
+import os
 
 import pygame
 from tkinter import *
@@ -282,10 +283,14 @@ def slider_released(event):
     seek_position(seconds)
 
 def import_file():
-    file = filedialog.askopenfilename(initialdir = "/music",title = 'Select MP3', filetypes=(("Mp3 Files", "*.mp3"),))
-    tags = ID3(file)
-    song = Music(tags['TIT2'].text[0],tags['TPE1'].text[0],file) #create music object using metadate from file
-    #return song
+    file_list = filedialog.askopenfilenames(initialdir = os.getcwd()+'\music' ,title = 'Select MP3', filetypes=(("Mp3 Files", "*.mp3"),))
+    Music_Object_List = []
+    for file in file_list:
+        tags = ID3(file)
+        song = Music(tags['TIT2'].text[0],tags['TPE1'].text[0],file) #create music object using metadate from file
+        Music_Object_List.append(song)
+    #Return list of Music Objects to be inserted into SQLITE 3 Database
+    return Music_Object_List
     
 
 def main():
@@ -384,13 +389,14 @@ def main():
     status_bar = Label(root, text=" ", bd=5, relief= FLAT, anchor=W)
     status_bar.pack(fill=X, side= BOTTOM, ipady=2)
 
+    #menu bar
+    menubar = Menu(root)
+    root.config(menu = menubar)
+    FileMenu = Menu(menubar, tearoff = 0)
 
-
-##    ####
-##    button_test = Button(root, text = 'File Open',command = import_file)
-##    button_test.pack()
-##
-##    ####
+    #File Menu
+    menubar.add_cascade(label = "File", menu = FileMenu)
+    FileMenu.add_command(label = "Add MP3 File(s)",command = import_file)
     
     
     list_box = Listbox()
