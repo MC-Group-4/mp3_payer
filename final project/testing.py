@@ -9,6 +9,7 @@ import random
 
 import pygame
 from tkinter import *
+from tkinter import filedialog
 import tkinter.ttk as ttk
 import time
 
@@ -280,6 +281,12 @@ def slider_released(event):
     #then move song to the desired position
     seek_position(seconds)
 
+def import_file():
+    file = filedialog.askopenfilename(initialdir = "/music",title = 'Select MP3', filetypes=(("Mp3 Files", "*.mp3"),))
+    tags = ID3(file)
+    song = Music(tags['TIT2'].text[0],tags['TPE1'].text[0],file) #create music object using metadate from file
+    #return song
+    
 
 def main():
         
@@ -377,7 +384,13 @@ def main():
     status_bar = Label(root, text=" ", bd=5, relief= FLAT, anchor=W)
     status_bar.pack(fill=X, side= BOTTOM, ipady=2)
 
-    
+
+
+##    ####
+##    button_test = Button(root, text = 'File Open',command = import_file)
+##    button_test.pack()
+##
+##    ####
     
     
     list_box = Listbox()
