@@ -311,7 +311,7 @@ def main():
     song_info_dict['length'] = audio.info.length #find and store lenght of file, in seconds, store in song_info_dict dictionary
 
     root = Tk()
-    root.geometry('500x500')
+    root.geometry('500x600')
 
     music_list = Listbox(root, width= 120)
     music_list.pack()
