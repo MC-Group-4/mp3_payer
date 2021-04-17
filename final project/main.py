@@ -240,8 +240,10 @@ def volume(x):
     current_volume = pygame.mixer.music.get_volume()
     
     
-def update_position(): #update label showing file name, current position and song lenth
-    """ update the label every second """
+def update_position():
+    #update label showing file name, current position and song length
+    
+    
     
     global position_label #update position label
     song_length = convert_seconds(song_info_dict['length']) 
@@ -257,6 +259,12 @@ def update_position(): #update label showing file name, current position and son
     #update slider position, ONLY IF MOUSE IS NOT CLICKING THE SLIDER!
     if not slider_mouse_clicked:
         position_slider.configure(value = current_position()[1])
+
+    #Play next song on playlist at end of current song            
+    for event in pygame.event.get():
+        if event.type == MUSIC_END:
+            next_call_back(music)
+        
 
     # schedule another timer
     position_label.after(100, update_position) #makes a loop
@@ -313,8 +321,19 @@ def main():
     # create_music(connection, music.get_music())
     # update_song(connection, ('Hello.wav', 3))
     # update_song(connection, ('Empire State Of Mind.wav', 2))
+    global music
     music = get_all_music(connection)
+
+    #iniitalize pygame and pygame.mixer
     pygame.mixer.init()
+    pygame.init()
+    
+    #set Pygame Music End Event
+    global MUSIC_END
+    MUSIC_END = pygame.USEREVENT+1
+    pygame.mixer.music.set_endevent(MUSIC_END)
+    
+    #load initial file
     file = f'music\\{music[0][3]}'
     update_song_info(file)
     update_song_start_pos(0)
