@@ -238,9 +238,12 @@ def skip_backward_10():
     print("Backward 10 Seconds")
 
 
-def shuffle_songs(conn, music):
+def shuffle_songs(conn, music, music_list):
     random.shuffle(music)
     print("Shuffle")
+    music_list.delete(0,'end')
+    for m in music:
+        music_list.insert(END, m[1])
 
 
 def volume(x):
@@ -464,7 +467,7 @@ def main():
     # shuffle button
     # shuffle_btn_image = PhotoImage(file = '/Users/mannat/PycharmProjects/Trial/shuffle.png')
     # shuffle_btn = Button(root, image = shuffle_btn_image, command = shuffle_songs, height = 25, width=40)
-        shuffle_btn = Button(root, text="shuffle", command=lambda: shuffle_songs(connection, music))
+        shuffle_btn = Button(root, text="shuffle", command=lambda: shuffle_songs(connection, music, music_list))
         shuffle_btn.pack()
     # label for displaying time of song
         global status_bar
