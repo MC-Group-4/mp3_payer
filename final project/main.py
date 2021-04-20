@@ -140,7 +140,7 @@ def prev_call_back(music, numOfSongs):
     else:
         count = (numOfSongs-1)
     stop_call_back()
-    file = f'music\\{music[count][ (numOfSongs-1)]}'
+    file = f'music\\{music[count][3]}'
     pygame.mixer.music.load(file)
 
     # update song info dict
@@ -164,7 +164,7 @@ def next_call_back(music, numOfSongs):
     else:
         count = 0
     stop_call_back()
-    file = f'music\\{music[count][(numOfSongs-1)]}'
+    file = f'music\\{music[count][3]}'
     pygame.mixer.music.load(file)
 
     # update song info dict
@@ -181,9 +181,21 @@ def update_song_info(file):
     print(file)  # file):#Sean
     audio = MP3(file)  # info about MP3 File
     tags = ID3(file)
+    try:
+        song_info_dict['Artist'] = tags['TPE1'].text[0]  # store Artist from MP3 Metadata Tag
+    except:
+        song_info_dict['Artist'] = 'Unknown'  # store Artist from MP3 Metadata Tag
+
+    try:
+        song_info_dict['Title'] = tags['TIT2'].text[0]  # store Song Title from MP3 Metadata Tag
+    except KeyError:
+        filename = file.split('\\')
+        filename = filename[1].split('.')
+        print(filename)
+        song_info_dict['Title'] = filename[0]
+
     song_info_dict['length'] = audio.info.length  # find and store lenght of file, in seconds
-    song_info_dict['Artist'] = tags['TPE1'].text[0]  # store Artist from MP3 Metadata Tag
-    song_info_dict['Title'] = tags['TIT2'].text[0]  # store Song Title from MP3 Metadata Tag
+
     print(song_info_dict['Title'])
 
 
@@ -402,7 +414,7 @@ def main():
     pygame.mixer.init()
     numOfSongs = get_num_of_songs(connection)
     try:
-        file = f'music\\{music[0][numOfSongs-1]}'
+        file = f'music\\{music[0][3]}'
         update_song_info(file)
         update_song_start_pos(0)
         pygame.mixer.music.load(file)
