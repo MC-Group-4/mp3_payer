@@ -74,6 +74,12 @@ def get_all_music(conn):
     cursor.execute(sql)
     return cursor.fetchall()
 
+def get_num_of_songs(conn):
+    sql = ''' SELECT * from music'''
+    cursor = conn.cursor()
+    cursor.execute(sql)
+    cursor.execute("SELECT * FROM music")
+    return len(cursor.fetchall())
 
 def update_song(conn, music):
     sql = ''' UPDATE music 
@@ -123,7 +129,7 @@ def stop_call_back():
         is_stopped = True
 
 
-def prev_call_back(music):
+def prev_call_back(music, numOfSongs):
     global count
     global is_paused
     global is_stopped
@@ -132,9 +138,9 @@ def prev_call_back(music):
     if count > 0:
         count -= 1
     else:
-        count = 3
+        count = (numOfSongs-1)
     stop_call_back()
-    file = f'music\\{music[count][3]}'
+    file = f'music\\{music[count][ (numOfSongs-1)]}'
     pygame.mixer.music.load(file)
 
     # update song info dict
@@ -146,19 +152,19 @@ def prev_call_back(music):
     play_call_back()
 
 
-def next_call_back(music):
+def next_call_back(music, numOfSongs):
     global listbox_total_count
     global count
     global is_paused
     global is_stopped
     is_paused = False
     is_stopped = True
-    if count < listbox_total_count:
+    if count < (numOfSongs-1):
         count += 1
     else:
         count = 0
     stop_call_back()
-    file = f'music\\{music[count][3]}'
+    file = f'music\\{music[count][(numOfSongs-1)]}'
     pygame.mixer.music.load(file)
 
     # update song info dict
@@ -394,8 +400,9 @@ def main():
     # update_song(connection, ('Empire State Of Mind.wav', 2))
     music = get_all_music(connection)
     pygame.mixer.init()
+    numOfSongs = get_num_of_songs(connection)
     try:
-        file = f'music\\{music[0][3]}'
+        file = f'music\\{music[0][numOfSongs-1]}'
         update_song_info(file)
         update_song_start_pos(0)
         pygame.mixer.music.load(file)
@@ -420,9 +427,9 @@ def main():
     play_btn.pack()
     stop_btn = Button(root, text='stop', command=stop_call_back)
     stop_btn.pack()
-    prev_btn = Button(root, text='prev', command=lambda: prev_call_back(music))
+    prev_btn = Button(root, text='prev', command=lambda: prev_call_back(music, numOfSongs))
     prev_btn.pack()
-    next_btn = Button(root, text='next', command=lambda: next_call_back(music))
+    next_btn = Button(root, text='next', command=lambda: next_call_back(music, numOfSongs))
     next_btn.pack()
 
     # Seek Buttons
