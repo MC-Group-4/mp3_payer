@@ -151,6 +151,10 @@ def prev_call_back(music, numOfSongs):
     position_slider.configure(value=0, to=song_info_dict['length'])
     play_call_back()
 
+    global music_list
+    music_list.selection_clear(0, END)
+    music_list.select_set(count)
+
 
 def next_call_back(music, numOfSongs):
     global listbox_total_count
@@ -175,6 +179,35 @@ def next_call_back(music, numOfSongs):
     position_slider.configure(value=0, to=song_info_dict['length'])
 
     play_call_back()
+
+    global music_list
+    music_list.selection_clear(0, END)
+    music_list.select_set(count)
+
+def play_after_shuffle(music):
+    global listbox_total_count
+    global count
+    global is_paused
+    global is_stopped
+    is_paused = False
+    is_stopped = True
+    count = 0
+    stop_call_back()
+    file = f'music\\{music[count][3]}'
+    pygame.mixer.music.load(file)
+
+    # update song info dict
+    update_song_info(file)
+    update_song_start_pos(0)  # set start position as 0
+
+    # reset slider position to 0 and set slider max equal to length of song
+    position_slider.configure(value=0, to=song_info_dict['length'])
+
+    play_call_back()
+
+    global music_list
+    music_list.selection_clear(0, END)
+    music_list.select_set(count)
 
 
 def update_song_info(file):
@@ -262,6 +295,7 @@ def shuffle_songs(conn, music, music_list):
     music_list.delete(0,'end')
     for m in music:
         music_list.insert(END, m[1])
+    play_after_shuffle(music)
 
 
 def volume(x):
@@ -426,12 +460,15 @@ def main():
     root = Tk()
     root.geometry('500x600')
 
+    global music_list
     music_list = Listbox(root, width=120)
     music_list.pack()
+    
 
     # adding music lists in the list
     for m in music:
         music_list.insert(END, m[1])
+    music_list.select_set(0)
     update_count(music_list)
     print(f"Showing all {listbox_total_count} songs")
 
