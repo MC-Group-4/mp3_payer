@@ -348,18 +348,6 @@ def slider_released(event):
     # then move song to the desired position
     seek_position(seconds)
 
-
-def import_file():
-    file_list = filedialog.askopenfilenames(initialdir=os.getcwd() + '\music', title='Select MP3',
-                                            filetypes=(("Mp3 Files", "*.mp3"),))
-    Music_Object_List = []
-    for file in file_list:
-        tags = ID3(file)
-        song = Music(tags['TIT2'].text[0], tags['TPE1'].text[0], file)  # create music object using metadate from file
-        Music_Object_List.append(song)
-    # Return list of Music Objects to be inserted into SQLITE 3 Database
-    return Music_Object_List
-
 '''
 For questions see @Mikhail
 Allows you to pick a song from any folder on your local machine.
