@@ -377,8 +377,8 @@ def load_music(music_list):
 
 
         tags = ID3(song)
-        filename = song.split('/music/')
-        filename = filename[1]
+        filename = song.split('/')
+        filename = filename[-1]
         check = 'music/' + filename
         print(check)
         if os.path.isfile(check):
