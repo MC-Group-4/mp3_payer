@@ -15,6 +15,7 @@ from tkinter import *
 from tkinter import filedialog
 import tkinter.ttk as ttk
 import time
+import sys
 
 # Global Variables
 
@@ -413,6 +414,14 @@ def update_count(music_list):
     listbox_total_count = music_list.size()
     return listbox_total_count
 
+def close_program(root):
+    root.destroy()
+    pygame.mixer.music.unload()
+    sys.exit()
+
+    
+
+
 
 
 def main():
@@ -535,6 +544,7 @@ def main():
 
     FileMenu.add_command(label="Add MP3 File(s)", command=lambda : load_music(music_list))
     FileMenu.add_command(label="Delete All Songs", command=delete)
+    FileMenu.add_command(label="Exit", command=lambda: close_program(root))
 
 
     list_box = Listbox()
