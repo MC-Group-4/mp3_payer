@@ -55,7 +55,8 @@ def create_table(conn, create_table_sql):
 
 def create_music(title, artist, file_name, music_list):
     global listbox_total_count
-
+    global music
+    global numOfSongs
     connect = sqlite3.connect('music.db')
     cursor_object = connect.cursor()
     cursor_object.execute("INSERT INTO music(title,artist,file_name)VALUES(?,?,?)", (title, artist, file_name,))
@@ -64,6 +65,7 @@ def create_music(title, artist, file_name, music_list):
     music_list.insert(END, music[-1][1])
     listbox_total_count = listbox_total_count + 1
 
+    numOfSongs = get_num_of_songs(connect)
     return cursor_object.lastrowid
 
 
@@ -432,8 +434,11 @@ def main():
     # create_music(connection, music.get_music())
     # update_song(connection, ('Hello.wav', 3))
     # update_song(connection, ('Empire State Of Mind.wav', 2))
+    global music
     music = get_all_music(connection)
     pygame.mixer.init()
+
+    global numOfSongs
     numOfSongs = get_num_of_songs(connection)
     try:
         file = f'music\\{music[0][3]}'
