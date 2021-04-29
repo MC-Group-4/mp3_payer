@@ -324,6 +324,13 @@ def update_position():  # update label showing file name, current position and s
     if not slider_mouse_clicked:
         position_slider.configure(value=current_position()[1])
 
+    #Play next song on playlist at end of current song
+    global music
+    global numOfSongs
+    for event in pygame.event.get():
+        if event.type == MUSIC_END:
+            next_call_back(music,numOfSongs)
+
     # schedule another timer
     position_label.after(100, update_position)  # makes a loop
 
@@ -446,6 +453,14 @@ def main():
     global music
     music = get_all_music(connection)
     pygame.mixer.init()
+
+    #set Pygame Music End Event
+    pygame.init()
+    global MUSIC_END
+    MUSIC_END = pygame.USEREVENT+1
+    pygame.mixer.music.set_endevent(MUSIC_END)
+
+    
 
     global numOfSongs
     numOfSongs = get_num_of_songs(connection)
