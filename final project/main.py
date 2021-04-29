@@ -113,6 +113,9 @@ def song_time():
 def play_call_back():
     global is_paused
     global is_stopped
+    if numOfSongs==0:
+        print("There are no songs!")
+        return 0
     if is_paused:
         pygame.mixer.music.unpause()
         is_paused = False
@@ -143,6 +146,9 @@ def prev_call_back(music, numOfSongs):
     global is_stopped
     is_paused = False
     is_stopped = True
+    if numOfSongs==0:
+        print("There are no songs!")
+        return 0
     if count > 0:
         count -= 1
     else:
@@ -171,6 +177,9 @@ def next_call_back(music, numOfSongs):
     global is_stopped
     is_paused = False
     is_stopped = True
+    if numOfSongs==0:
+        print("There are no songs!")
+        return 0
     if count < (numOfSongs-1):
         count += 1
     else:
@@ -268,6 +277,9 @@ def current_position():  # Sean
         return ('0:00:00', 0)
 
 def seek_position(seconds):  # Sean
+    if numOfSongs==0:
+        print("There are no songs!")
+        return 0
     if seconds > song_info_dict['length']:  # if input is larger than length of song, play song from beginning
         pygame.mixer.music.rewind()
         pygame.mixer.music.play()
@@ -280,6 +292,9 @@ def seek_position(seconds):  # Sean
 def skip_forward_10():
     current = current_position()[1]
     new = current + 10
+    if numOfSongs==0:
+        print("There are no songs!")
+        return 0
     if new < song_info_dict['length']:
         seek_position(new)
 
@@ -289,6 +304,9 @@ def skip_forward_10():
 def skip_backward_10():
     current = current_position()[1]
     new = current - 10
+    if numOfSongs==0:
+        print("There are no songs!")
+        return 0
     if new > 0:
         seek_position(new)
     else:
@@ -300,6 +318,9 @@ def skip_backward_10():
 
 
 def shuffle_songs(conn, music, music_list):
+    if numOfSongs==0:
+        print("There are no songs!")
+        return 0
     random.shuffle(music)
     print("Shuffle")
     music_list.delete(0,'end')
