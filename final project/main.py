@@ -62,11 +62,16 @@ def create_music(title, artist, file_name, music_list):
     cursor_object = connect.cursor()
     cursor_object.execute("INSERT INTO music(title,artist,file_name)VALUES(?,?,?)", (title, artist, file_name,))
     connect.commit()
+
+    #check if any songs are in playlist
+    music_inital = len(music)
+        
     music = get_all_music(connect)
     music_list.insert(END, music[-1][1])
     listbox_total_count = listbox_total_count + 1
-
     numOfSongs = get_num_of_songs(connect)
+    if music_inital == 0:
+        next_call_back(music, numOfSongs)
     return cursor_object.lastrowid
 
 
@@ -121,8 +126,8 @@ def play_call_back():
         is_paused = True
         print('pausing')
 
-    # calling from play so updates the time of the song every time it is paused and played, need to fix
-    status_bar.after(1000, song_time())
+##    # calling from play so updates the time of the song every time it is paused and played, need to fix
+##    status_bar.after(1000, song_time())
 
 
 def stop_call_back():
@@ -241,24 +246,26 @@ def update_song_start_pos(position):  # Sean
 
 
 def current_position():  # Sean
-    realtivePosition = pygame.mixer.music.get_pos() / 1000  # get current relative song position from pygame, in seconds
-    absolutePosition = song_info_dict[
-                           'start_pos'] + realtivePosition  # find absolute position by adding relative positon to starting positon
-    position_str = convert_seconds(absolutePosition)
-    length = convert_seconds(song_info_dict['length'])  # length of song in h:mm:ss format
+    try:
+        realtivePosition = pygame.mixer.music.get_pos() / 1000  # get current relative song position from pygame, in seconds
+        absolutePosition = song_info_dict[
+                               'start_pos'] + realtivePosition  # find absolute position by adding relative positon to starting positon
+        position_str = convert_seconds(absolutePosition)
+        length = convert_seconds(song_info_dict['length'])  # length of song in h:mm:ss format
 
-    # check if song has starded, if not return tupple (0:00, 0)
-    if absolutePosition < 1:
+        # check if song has starded, if not return tupple (0:00, 0)
+        if absolutePosition < 1:
+            return ('0:00:00', 0)
+
+        # if song is not at 0, but relative position is < 1, then song has ended. Return tupple(song length, length in seconds)
+        elif realtivePosition < 0:
+            return (length, song_info_dict['length'])
+
+        # else return current position tupple
+        else:
+            return (position_str, absolutePosition)  # return tuple of (h:mm:ss, seconds)
+    except:
         return ('0:00:00', 0)
-
-    # if song is not at 0, but relative position is < 1, then song has ended. Return tupple(song length, length in seconds)
-    elif realtivePosition < 0:
-        return (length, song_info_dict['length'])
-
-    # else return current position tupple
-    else:
-        return (position_str, absolutePosition)  # return tuple of (h:mm:ss, seconds)
-
 
 def seek_position(seconds):  # Sean
     if seconds > song_info_dict['length']:  # if input is larger than length of song, play song from beginning
@@ -310,15 +317,19 @@ def update_position():  # update label showing file name, current position and s
     """ update the label every second """
 
     global position_label  # update position label
-    song_length = convert_seconds(song_info_dict['length'])
-    position_label.configure(text=current_position()[0] + ' / ' + song_length)
+    try:
+        song_length = convert_seconds(song_info_dict['length'])
+        position_label.configure(text=current_position()[0] + ' / ' + song_length)
+    except:
+        
+        position_label.configure(text='No Song Loaded')
 
     global song_label  # update song Label
 
     try:
         song_label.configure(text='Now Playing: ' + song_info_dict['Title'])
     except:  # if no song is loaded, display ''
-        song_label.configure(text='None')
+        song_label.configure(text='Add a Song!')
 
     # update slider position, ONLY IF MOUSE IS NOT CLICKING THE SLIDER!
     if not slider_mouse_clicked:
@@ -508,46 +519,50 @@ def main():
 
 
     # Volume button
-    try:
-
-        global volumeSlider
-        volumeLable = Label(root, text='Volume')
-        volumeLable.pack()
-        volumeSlider = Scale(root, from_=0.0, to=1.0, resolution=0.1, length=400, orient=HORIZONTAL, command=volume)
-        volumeSlider.pack()
-
+    global volumeSlider
+    volumeLable = Label(root, text='Volume')
+    volumeLable.pack()
+    volumeSlider = Scale(root, from_=0.0, to=1.0, resolution=0.1, length=400, orient=HORIZONTAL, command=volume)
+    volumeSlider.pack()
+    
     # Show Current Positon
-        global position_label
+    global position_label
+    try:
         song_length = convert_seconds(song_info_dict['length'])
         position_label = Label(text=f'0:00:00 / {song_length}')
         position_label.pack(expand=True)
         position_label.after(100, update_position)  # calls function after 1/10s
+    except:
+        
+        position_label = Label(text='No Song Loaded')
+        position_label.pack(expand=True)
+        position_label.after(100, update_position)  # calls function after 1/10s
 
     # Now Playing Label
-        global song_label
+    global song_label
+    try:
         song_label = ttk.Label(root, text=song_info_dict['Title'])
+        song_label.pack()
+    except:
+        song_label = ttk.Label(root, text='Add a Song!')
         song_label.pack()
 
     # Position Slider
-        global position_slider
+    global position_slider
+    try:
         position_slider = ttk.Scale(root, from_=0, to=song_info_dict['length'], value=0, length=400)
+        position_slider.pack(pady=20)
+    except:
+        position_slider = ttk.Scale(root, from_=0, to=100, value=0, length=400)
         position_slider.pack(pady=20)
 
     # bind mouse click and release events (only when clicking slider bar) to functions
-        position_slider.bind('<Button-1>', slider_clicked)
-        position_slider.bind('<ButtonRelease-1>', slider_released)
+    position_slider.bind('<Button-1>', slider_clicked)
+    position_slider.bind('<ButtonRelease-1>', slider_released)
 
     # shuffle button
-    # shuffle_btn_image = PhotoImage(file = '/Users/mannat/PycharmProjects/Trial/shuffle.png')
-    # shuffle_btn = Button(root, image = shuffle_btn_image, command = shuffle_songs, height = 25, width=40)
-        shuffle_btn = Button(root, text="shuffle", command=lambda: shuffle_songs(connection, music, music_list))
-        shuffle_btn.pack()
-    # label for displaying time of song
-        global status_bar
-        status_bar = Label(root, text=" ", bd=5, relief=FLAT, anchor=W)
-        status_bar.pack(fill=X, side=BOTTOM, ipady=2)
-    except KeyError:
-        print("No songs in MP3 player, unable to load certain information")
+    shuffle_btn = Button(root, text="shuffle", command=lambda: shuffle_songs(connection, music, music_list))
+    shuffle_btn.pack()
 
     # menu bar
     menubar = Menu(root)
