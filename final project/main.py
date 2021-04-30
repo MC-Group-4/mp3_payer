@@ -13,6 +13,7 @@ import shutil
 import pygame
 from tkinter import *
 from tkinter import filedialog
+import atexit
 import tkinter.ttk as ttk
 import time
 import sys
@@ -457,8 +458,18 @@ def close_program(root):
     root.destroy()
     pygame.mixer.music.unload()
     sys.exit()
-
     
+def delete_all_songs(connection):
+    sql = 'DELETE FROM music'
+    c = connection.cursor()
+    c.execute(sql)
+    connection.commit()
+
+
+
+def on_closing(connection):
+    delete_all_songs(connection)
+
 
 
 
@@ -600,7 +611,7 @@ def main():
 
     list_box = Listbox()
 
-
+    atexit.register(on_closing, connection)
 
     root.mainloop()
 
