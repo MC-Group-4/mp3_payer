@@ -15,6 +15,7 @@ from tkinter import *
 from tkinter import filedialog
 import atexit
 import tkinter.ttk as ttk
+from PIL import ImageTk, Image
 import time
 import sys
 
@@ -201,6 +202,24 @@ def next_call_back(music, numOfSongs):
     global music_list
     music_list.selection_clear(0, END)
     music_list.select_set(count)
+
+def play_selected(e):
+    global music_list
+    global is_paused
+    global is_stopped
+    is_paused = False
+    is_stopped = True
+    index = int(music_list.curselection()[0])
+    print(music[index])
+    file = f'music\\{music[index][-1]}'
+    pygame.mixer.music.load(file)
+
+    print(file)
+    update_song_info(file)
+    update_song_start_pos(0)
+    position_slider.configure(value=0, to=song_info_dict['length'])
+
+    play_call_back()
 
 def play_after_shuffle(music):
     global listbox_total_count
@@ -519,6 +538,7 @@ def main():
         print("There are currently no songs in the MP3 player")
     root = Tk()
     root.geometry('500x600')
+    root.resizable(False, False)
 
     global music_list
     music_list = Listbox(root, width=120)
@@ -532,30 +552,123 @@ def main():
     update_count(music_list)
     print(f"Showing all {listbox_total_count} songs")
 
-    play_btn = Button(root, text='play', command=play_call_back)
-    play_btn.pack()
-    stop_btn = Button(root, text='stop', command=stop_call_back)
-    stop_btn.pack()
-    prev_btn = Button(root, text='prev', command=lambda: prev_call_back(music, numOfSongs))
-    prev_btn.pack()
-    next_btn = Button(root, text='next', command=lambda: next_call_back(music, numOfSongs))
-    next_btn.pack()
+    music_list.bind('<Double-Button-1>', play_selected)
 
-    # Seek Buttons
-    Forward_Logo = PhotoImage(file='Assets/FF.png')
-    Backward_Logo = PhotoImage(file='Assets/FR.png')
-    SeekForward_btn = Button(root, image=Forward_Logo, command=skip_forward_10)
-    SeekForward_btn.pack()
-    SeekBackward_btn = Button(root, image=Backward_Logo, command=skip_backward_10)
-    SeekBackward_btn.pack()
+    # play_btn = Button(root, text='play', command=play_call_back)
+    # play_btn.pack()
+    # stop_btn = Button(root, text='stop', command=stop_call_back)
+    # stop_btn.pack()
+    # prev_btn = Button(root, text='prev', command=lambda: prev_call_back(music, numOfSongs))
+    # prev_btn.pack()
+    # next_btn = Button(root, text='next', command=lambda: next_call_back(music, numOfSongs))
+    # next_btn.pack()
+
+    def shuffle():
+        pass
+
+    def repeat():
+        pass
+
+
+    # define player control: player control icons
+    play_img = PhotoImage(file='Assets/icons/play_large.png')
+    pause_img = PhotoImage(file='Assets/icons/pause_large.png')
+    stop_img = PhotoImage(file='Assets/icons/stop.png')
+    next_img = PhotoImage(file='Assets/icons/next.png')
+    prev_img = PhotoImage(file='Assets/icons/prev.png')
+    shuffle_img = PhotoImage(file='Assets/icons/shuffle.png')
+    forward_img = PhotoImage(file='Assets/icons/FF.png')
+    backward_img = PhotoImage(file='Assets/icons/FR.png')
+    shuffle_active_img = PhotoImage(file='Assets/icons/shuffle_active.png')
+    repeat_img = PhotoImage(file='Assets/icons/repeat.png')
+    repeat_once_img = PhotoImage(file='Assets/icons/repeat_once.png')
+    volume_img = ImageTk.PhotoImage(Image.open("Assets/icons/volume.png"))
+    mute_img = ImageTk.PhotoImage(Image.open("Assets/icons/mute.png"))
+
+    #  control btns
+    control_btn_frame = Frame(root, width=600)
+    control_btn_frame.pack()
+    
+    play_btn = Button(control_btn_frame, image=play_img, borderwidth=0, command=play_call_back)
+    next_btn = Button(control_btn_frame, image=next_img, borderwidth=0, command=lambda: next_call_back(music, numOfSongs))
+    prev_btn = Button(control_btn_frame, image=prev_img, borderwidth=0, command=lambda: prev_call_back(music, numOfSongs))
+    shuffle_btn = Button(control_btn_frame, image=shuffle_img, borderwidth=0, command=lambda:shuffle_songs(connection, music, music_list)) 
+    repeat_btn = Button(control_btn_frame, image=repeat_img, borderwidth=0, command=repeat)
+    forward_btn = Button(control_btn_frame, image=forward_img, borderwidth=0, command=skip_forward_10)
+    backward_btn = Button(control_btn_frame, image=backward_img, borderwidth=0, command=skip_backward_10)
+
+    shuffle_btn.grid(row=0, column=0, padx=20, pady=30)
+    prev_btn.grid(row=0, column=1, padx=20, pady=30)
+    backward_btn.grid(row=0, column=2, padx=20, pady=30)
+    play_btn.grid(row=0, column=3, padx=20, pady=30)
+    forward_btn.grid(row=0, column=4, padx=20, pady=30)
+    next_btn.grid(row=0, column=5, padx=20, pady=30)
+    repeat_btn.grid(row=0, column=6, padx=20, pady=30)
+    
+
+
+
 
 
     # Volume button
-    global volumeSlider
-    volumeLable = Label(root, text='Volume')
-    volumeLable.pack()
-    volumeSlider = Scale(root, from_=0.0, to=1.0, resolution=0.1, length=400, orient=HORIZONTAL, command=volume)
-    volumeSlider.pack()
+    # global volumeSlider
+    # volumeLable = Label(root, text='Volume')
+    # volumeLable.pack()
+    # volumeSlider = Scale(root, from_=0.0, to=1.0, resolution=0.1, length=400, orient=HORIZONTAL, command=volume)
+    # volumeSlider.pack()
+
+    def mute_volume():
+        global vol
+        if volume_slider.get() > 0:
+            vol = volume_slider.get()
+            volume_slider.set(0)
+            img = ImageTk.PhotoImage(Image.open("Assets/icons/mute.png"))
+            volume_btn.configure(image=img)
+            volume_img.image = img
+        else:
+            if vol <= 0: vol = 80
+            volume_slider.set(vol)
+            img = ImageTk.PhotoImage(Image.open("Assets/icons/volume.png"))
+            volume_btn.configure(image=img)
+            volume_img.image = img
+        pygame.mixer.music.set_volume(volume_slider.get() / 100)
+        volume_amount_lbl.configure(text=int(volume_slider.get()))
+
+    def set_volume(e):
+        global vol
+        pygame.mixer.music.set_volume(volume_slider.get() / 100)
+        volume_amount_lbl.configure(text=int(volume_slider.get()))
+        if volume_slider.get() <= 0:
+            img = ImageTk.PhotoImage(Image.open("Assets/icons/mute.png"))
+            volume_btn.configure(image=img)
+            volume_img.image = img
+        else:
+            img = ImageTk.PhotoImage(Image.open("Assets/icons/volume.png"))
+            volume_btn.configure(image=img)
+            volume_img.image = img
+
+        # volume widget
+    vol = 0
+
+    volume_frame = Frame(root, width=100)
+    volume_frame.pack()
+
+    volume_btn = Button(volume_frame, bd=0, image=volume_img, command= mute_volume)
+    volume_btn.grid(row=0, column=0)
+
+    volume_amount_lbl = Label(volume_frame, text=int(pygame.mixer.music.get_volume() * 100))
+    volume_amount_lbl.grid(row=0, column=2)
+
+
+
+    volume_slider = Scale(volume_frame, orient=HORIZONTAL
+                        , length=70,
+                        bg='#333', troughcolor='#fff', sliderlength=10,
+                        bd=0, showvalue=0,
+                        command=set_volume)
+
+    volume_slider.grid(row=0, column=1, padx=20)
+    volume_slider.set(pygame.mixer.music.get_volume() * 100)
     
     # Show Current Positon
     global position_label
@@ -593,8 +706,8 @@ def main():
     position_slider.bind('<ButtonRelease-1>', slider_released)
 
     # shuffle button
-    shuffle_btn = Button(root, text="shuffle", command=lambda: shuffle_songs(connection, music, music_list))
-    shuffle_btn.pack()
+    # shuffle_btn = Button(root, text="shuffle", command=lambda: shuffle_songs(connection, music, music_list))
+    # shuffle_btn.pack()
 
     # menu bar
     menubar = Menu(root)
@@ -610,6 +723,8 @@ def main():
 
 
     list_box = Listbox()
+
+   
 
     atexit.register(on_closing, connection)
 
