@@ -117,6 +117,12 @@ def play_call_back():
     global is_stopped
     if numOfSongs==0:
         print("There are no songs!")
+        if is_paused==False:
+            is_paused = True
+            pygame.mixer.music.pause()
+        if is_stopped==False:
+            is_stopped = True
+            stop_call_back()
         return 0
     if is_paused:
         pygame.mixer.music.unpause()
@@ -460,13 +466,24 @@ def view():
     print(rows)
 
 
-def delete():
+def delete(connection):
     connect = sqlite3.connect('music.db')
     cursor_object = connect.cursor()
     # cursor_object.execute("DELETE FROM music WHERE title = ?", (title,))
     cursor_object.execute("DELETE FROM music")
+    cursor_object.execute("SELECT * FROM music")
+    print("Database music:\n")
+    print(cursor_object.fetchall())
+    music_list.delete(0,'end')
+    music.clear()
     connect.commit()
     connect.close()
+    global numOfSongs
+    numOfSongs = get_num_of_songs(connection)
+    print("number of songs", numOfSongs)
+    play_call_back()
+    song_info_dict.clear()
+    update_position()
 
 def update_count(music_list):
     global listbox_total_count
@@ -483,7 +500,9 @@ def delete_all_songs(connection):
     c = connection.cursor()
     c.execute(sql)
     connection.commit()
-
+    global numOfSongs
+    numOfSongs = get_num_of_songs(connection)
+    print("number of songs", numOfSongs)
 
 
 def on_closing(connection):
@@ -718,7 +737,7 @@ def main():
     menubar.add_cascade(label="File", menu=FileMenu)
 
     FileMenu.add_command(label="Add MP3 File(s)", command=lambda : load_music(music_list))
-    FileMenu.add_command(label="Delete All Songs", command=delete)
+    FileMenu.add_command(label="Delete All Songs", command=lambda: delete(connection))
     FileMenu.add_command(label="Exit", command=lambda: close_program(root))
 
 
