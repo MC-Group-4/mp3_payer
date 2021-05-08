@@ -71,10 +71,12 @@ class Database:
 
 
 
+# db = Database()
+# for song in db.find_song_by_artist_name('Desiigner'):
+#     print(song)
+    # db.update_song_cover_art(song[0], 'desiigner.png')
 
 
-
-    
     # sql = """
     #     CREATE TABLE IF NOT EXIST artists(
     #           id INTEGER PRIMARY KEY AUTOINCREMENT,

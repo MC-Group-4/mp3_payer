@@ -31,7 +31,9 @@ class Song():
     def set_song_duration(self):
         music_dir = base + '\music'
         song_file = os.path.join(music_dir, self.get_song_file())
+        print(song_file)
         self.song_duration = MP3(song_file).info.length
+        print('duration', self.song_duration)
 
 class Artist():
     def __init__(self, artist_name='unknown', cover_art="default.png"):

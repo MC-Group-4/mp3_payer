@@ -1,0 +1,45 @@
+{
+    "current": 13,
+    "song_current_pos": 5,
+    "volume": 48.0,
+    "is_repeat": true,
+    "is_shuffled": false,
+    "shuffled_playlist": [
+        [
+            71,
+            "Run This Town",
+            "Run This Town.mp3",
+            "unknown",
+            267.78122448979593,
+            "AllMusic",
+            "allmusic.png"
+        ],
+        [
+            72,
+            "Go Crazy",
+            "Go Crazy.mp3",
+            "unknown",
+            177.0215625,
+            "unknown",
+            "default.png"
+        ],
+        [
+            73,
+            "Akon - Beautiful ft",
+            "Akon - Beautiful ft. Colby O'Donis, Kardinal Offishall.mp3",
+            "unknown",
+            229.2141875,
+            "unknown",
+            "default.png"
+        ],
+        [
+            74,
+            "Crazy In Love",
+            "Crazy In Love.mp3",
+            "unknown",
+            236.19918367346938,
+            "unknown",
+            "default.png"
+        ]
+    ]
+}
