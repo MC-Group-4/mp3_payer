@@ -23,6 +23,7 @@ import sys
 
 is_paused = False
 is_stopped = True
+is_repeat = False
 count = 0
 song_info_dict = {}
 slider_mouse_clicked = False
@@ -213,11 +214,12 @@ def play_selected(e):
     global music_list
     global is_paused
     global is_stopped
+    global count
     is_paused = False
     is_stopped = True
-    index = int(music_list.curselection()[0])
-    print(music[index])
-    file = f'music\\{music[index][-1]}'
+    count = int(music_list.curselection()[0])
+    print(music[count])
+    file = f'music\\{music[count][-1]}'
     pygame.mixer.music.load(file)
 
     print(file)
@@ -385,8 +387,11 @@ def update_position():  # update label showing file name, current position and s
     #Play next song on playlist at end of current song
     global music
     global numOfSongs
+    global count
     for event in pygame.event.get():
         if event.type == MUSIC_END:
+            if is_repeat:
+                count -= 1
             next_call_back(music,numOfSongs)
 
     # schedule another timer
@@ -582,11 +587,18 @@ def main():
     # next_btn = Button(root, text='next', command=lambda: next_call_back(music, numOfSongs))
     # next_btn.pack()
 
-    def shuffle():
-        pass
+    def change_repeat_icon():
+        if is_repeat:
+            repeat_btn.configure(image = repeat_once_img)
+            repeat_btn['image'] = repeat_once_img
+        else:
+            repeat_btn.configure(image = repeat_img)
+            repeat_btn['image'] = repeat_img
 
     def repeat():
-        pass
+        global is_repeat
+        is_repeat = not is_repeat
+        change_repeat_icon()
 
 
     # define player control: player control icons
