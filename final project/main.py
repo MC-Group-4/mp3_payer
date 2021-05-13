@@ -563,6 +563,8 @@ def main():
     root = Tk()
     root.geometry('500x400')
     root.resizable(False, False)
+    root.wm_iconbitmap('Assets/icons/music_note.ico')
+    root.title("Group 4 MP3 Player")
 
     global music_list
     music_list = Listbox(root, width=120)
@@ -701,7 +703,7 @@ def main():
     volume_slider.grid(row=0, column=1, padx=20)
     volume_slider.set(pygame.mixer.music.get_volume() * 100)
 
-    position_frame = Frame(root, width=600)
+    position_frame = Frame(root, width=600,pady=10)
     position_frame.pack()
     
     # Show Current Positon
@@ -721,10 +723,10 @@ def main():
     global song_label
     try:
         song_label = ttk.Label(root, text=song_info_dict['Title'])
-        song_label.pack(pady=30,expand = True)
+        song_label.pack(expand = True)
     except:
         song_label = ttk.Label(root, text='Add a Song!')
-        song_label.pack(pady=30,expand = True)
+        song_label.pack(expand = True)
 
     # Position Slider
     global position_slider
