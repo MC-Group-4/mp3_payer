@@ -561,7 +561,7 @@ def main():
     except IndexError:
         print("There are currently no songs in the MP3 player")
     root = Tk()
-    root.geometry('500x600')
+    root.geometry('500x400')
     root.resizable(False, False)
 
     global music_list
@@ -700,37 +700,40 @@ def main():
 
     volume_slider.grid(row=0, column=1, padx=20)
     volume_slider.set(pygame.mixer.music.get_volume() * 100)
+
+    position_frame = Frame(root, width=600)
+    position_frame.pack()
     
     # Show Current Positon
     global position_label
     try:
         song_length = convert_seconds(song_info_dict['length'])
-        position_label = Label(text=f'0:00:00 / {song_length}')
-        position_label.pack(expand=True)
+        position_label = Label(position_frame,text=f'0:00:00 / {song_length}')
+        position_label.grid(row=0, column=2, padx=20)
         position_label.after(100, update_position)  # calls function after 1/10s
     except:
         
-        position_label = Label(text='No Song Loaded')
-        position_label.pack(expand=True)
+        position_label = Label(position_frame,text='No Song Loaded')
+        position_label.grid(row=0, column=2, padx=20)
         position_label.after(100, update_position)  # calls function after 1/10s
 
     # Now Playing Label
     global song_label
     try:
         song_label = ttk.Label(root, text=song_info_dict['Title'])
-        song_label.pack()
+        song_label.pack(pady=30,expand = True)
     except:
         song_label = ttk.Label(root, text='Add a Song!')
-        song_label.pack()
+        song_label.pack(pady=30,expand = True)
 
     # Position Slider
     global position_slider
     try:
-        position_slider = ttk.Scale(root, from_=0, to=song_info_dict['length'], value=0, length=400)
-        position_slider.pack(pady=20)
+        position_slider = ttk.Scale(position_frame, from_=0, to=song_info_dict['length'], value=0, length=350)
+        position_slider.grid(row=0, column=0)
     except:
-        position_slider = ttk.Scale(root, from_=0, to=100, value=0, length=400)
-        position_slider.pack(pady=20)
+        position_slider = ttk.Scale(position_frame, from_=0, to=100, value=0, length=350)
+        position_slider.grid(row=0, column=0)
 
     # bind mouse click and release events (only when clicking slider bar) to functions
     position_slider.bind('<Button-1>', slider_clicked)
