@@ -138,9 +138,6 @@ def play_call_back():
         is_paused = True
         print('pausing')
 
-##    # calling from play so updates the time of the song every time it is paused and played, need to fix
-##    status_bar.after(1000, song_time())
-
 
 def stop_call_back():
     global is_stopped
@@ -529,10 +526,7 @@ def main():
     else:
         print("Error! cannot create the database connection.")
 
-    # music = Music('Hello', 'Adele', 'Hello')
-    # create_music(connection, music.get_music())
-    # update_song(connection, ('Hello.wav', 3))
-    # update_song(connection, ('Empire State Of Mind.wav', 2))
+  
     global music
     music = get_all_music(connection)
     pygame.mixer.init()
@@ -577,14 +571,6 @@ def main():
 
     music_list.bind('<Double-Button-1>', play_selected)
 
-    # play_btn = Button(root, text='play', command=play_call_back)
-    # play_btn.pack()
-    # stop_btn = Button(root, text='stop', command=stop_call_back)
-    # stop_btn.pack()
-    # prev_btn = Button(root, text='prev', command=lambda: prev_call_back(music, numOfSongs))
-    # prev_btn.pack()
-    # next_btn = Button(root, text='next', command=lambda: next_call_back(music, numOfSongs))
-    # next_btn.pack()
 
     def change_repeat_icon():
         if is_repeat:
@@ -640,12 +626,6 @@ def main():
 
 
 
-    # Volume button
-    # global volumeSlider
-    # volumeLable = Label(root, text='Volume')
-    # volumeLable.pack()
-    # volumeSlider = Scale(root, from_=0.0, to=1.0, resolution=0.1, length=400, orient=HORIZONTAL, command=volume)
-    # volumeSlider.pack()
 
     def mute_volume():
         global vol
@@ -738,9 +718,6 @@ def main():
     position_slider.bind('<Button-1>', slider_clicked)
     position_slider.bind('<ButtonRelease-1>', slider_released)
 
-    # shuffle button
-    # shuffle_btn = Button(root, text="shuffle", command=lambda: shuffle_songs(connection, music, music_list))
-    # shuffle_btn.pack()
 
     # menu bar
     menubar = Menu(root)
